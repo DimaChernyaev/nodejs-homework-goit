@@ -2,8 +2,13 @@ const HttpError = require("../helpers/HttpError");
 
 const validation = (schema) => {
   const func = (req, res, next) => {
+    const empty = req._body;
     const { error } = schema.validate(req.body);
-    console.log(error.details[0].message);
+
+    if (!empty) {
+      next(HttpError(400, "missing fields"));
+    }
+
     if (error) {
       const type = error.details[0].message.includes("must be a string");
       const requireField = error.details[0].path[0];

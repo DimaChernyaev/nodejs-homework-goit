@@ -16,7 +16,7 @@ const getAllContacts = async (req, res, next) => {
   res.status(200).json(result);
 };
 
-const getCurrentContact = async (req, res, next) => {
+const getCurrentContact = async (req, res) => {
   const { contactId } = req.params;
   const result = await getContactById(contactId);
   if (!result) {
@@ -25,12 +25,12 @@ const getCurrentContact = async (req, res, next) => {
   res.status(200).json(result);
 };
 
-const addNewContact = async (req, res, next) => {
+const addNewContact = async (req, res) => {
   const result = await addContact(req.body);
   res.status(201).json(result);
 };
 
-const deleteCurrentContact = async (req, res, next) => {
+const deleteCurrentContact = async (req, res) => {
   const { contactId } = req.params;
   const deleteContact = await removeContact(contactId);
   if (!deleteContact) {
@@ -39,13 +39,8 @@ const deleteCurrentContact = async (req, res, next) => {
   res.status(200).json({ message: "contact deleted" });
 };
 
-const updateCurrentContact = async (req, res, next) => {
-  const empty = req._body;
+const updateCurrentContact = async (req, res) => {
   const { contactId } = req.params;
-
-  if (!empty) {
-    throw HttpError(400, "missing fields");
-  }
 
   const result = await updateContact(contactId, req.body);
   if (!result) {
