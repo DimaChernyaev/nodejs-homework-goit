@@ -1,5 +1,18 @@
-const app = require('./app')
+const app = require("./app");
+const mongoose = require("mongoose");
+mongoose.Promise = global.Promise;
 
-app.listen(3000, () => {
-  console.log("Server running. Use our API on port: 3000")
-})
+const { DB_HOST, PORT } = process.env;
+
+(async () => {
+  try {
+    await mongoose.connect(DB_HOST);
+    console.log("Database connection successful");
+    app.listen(PORT, () => {
+      console.log("Server running");
+    });
+  } catch (error) {
+    console.log(error.message);
+    process.exit(1);
+  }
+})();
