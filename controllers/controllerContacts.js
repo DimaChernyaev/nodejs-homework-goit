@@ -3,7 +3,8 @@ const { HttpError } = require("../helpers");
 const { controllerWrapper } = require("../helpers");
 
 const getAllContacts = async (req, res) => {
-  const result = await Contact.find();
+  const { _id: owner } = req.user;
+  const result = await Contact.find({ owner }, "-createdAt -updatedAt -owner");
   if (!result) {
     throw HttpError(404, "Not found");
   }
@@ -20,7 +21,8 @@ const getCurrentContact = async (req, res) => {
 };
 
 const addNewContact = async (req, res) => {
-  const result = await Contact.create(req.body);
+  const { _id: owner } = req.user;
+  const result = await Contact.create({ ...req.body, owner });
   res.status(201).json(result);
 };
 
