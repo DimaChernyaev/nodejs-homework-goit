@@ -12,6 +12,13 @@ const validation = (schema) => {
     if (error) {
       const type = error.details[0].message.includes("must be a string");
       const requireField = error.details[0].path[0];
+      const min = error.details[0].type;
+
+      if (min === "string.min") {
+        next(
+          HttpError(400, `password length must be at least 4 characters long`)
+        );
+      }
 
       if (type) {
         next(HttpError(400, `all properties must be a string`));
@@ -21,7 +28,7 @@ const validation = (schema) => {
     }
     next();
   };
-  
+
   return func;
 };
 

@@ -8,14 +8,18 @@ const typeUser = ["starter", "pro", "business"];
 const ShemaRegisterUser = Joi.object({
   email: Joi.string().pattern(emailPattern).required(),
   password: Joi.string().min(4).required(),
-  subscription: Joi.string()
-    .valid(...typeUser)
-    .required(),
+  subscription: Joi.string().valid(...typeUser),
 });
 
 const ShemaLoginUser = Joi.object({
   email: Joi.string().pattern(emailPattern).required(),
-  password: Joi.string().min(4).required(),
+  password: Joi.string().required(),
+});
+
+const SchemaSubscription = Joi.object({
+  subscription: Joi.string()
+    .valid(...typeUser)
+    .required(),
 });
 
 const UserShema = new Schema(
@@ -36,6 +40,10 @@ const UserShema = new Schema(
       enum: typeUser,
       default: "starter",
     },
+    token: {
+      type: String,
+      default: "",
+    },
   },
   { versionKey: false, timestamps: true }
 );
@@ -47,6 +55,7 @@ const User = model("user", UserShema);
 const schemas = {
   ShemaRegisterUser,
   ShemaLoginUser,
+  SchemaSubscription,
 };
 
 module.exports = { schemas, User };
