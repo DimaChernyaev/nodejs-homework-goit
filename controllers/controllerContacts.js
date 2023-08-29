@@ -3,7 +3,21 @@ const { HttpError } = require("../helpers");
 const { controllerWrapper } = require("../helpers");
 
 const getAllContacts = async (req, res) => {
-  const result = await Contact.find();
+  const { _id: owner } = req.user;
+
+  const { favorite, page = 1, limit = 10 } = req.query;
+  const skip = (page - 1) * limit;
+
+  const filter = { owner };
+  if (favorite !== undefined) {
+    filter.favorite = favorite === "true";
+  }
+
+  const result = await Contact.find(filter, "-createdAt -updatedAt -owner", {
+    skip,
+    limit,
+  });
+
   if (!result) {
     throw HttpError(404, "Not found");
   }
@@ -20,7 +34,8 @@ const getCurrentContact = async (req, res) => {
 };
 
 const addNewContact = async (req, res) => {
-  const result = await Contact.create(req.body);
+  const { _id: owner } = req.user;
+  const result = await Contact.create({ ...req.body, owner });
   res.status(201).json(result);
 };
 
