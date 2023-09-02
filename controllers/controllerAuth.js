@@ -7,6 +7,8 @@ require("dotenv").config();
 const path = require("path");
 const fs = require("fs/promises");
 const gravatar = require("gravatar");
+const jimp = require("jimp");
+const { log } = require("console");
 
 const { SECRET_KEY } = process.env;
 const avatarsDir = path.join(__dirname, "../", "public", "avatars");
@@ -88,12 +90,18 @@ const updateStatus = async (req, res) => {
 const updateAvatar = async (req, res) => {
   const { _id } = req.user;
   const { path: tmpDir, originalname } = req.file;
+
+  const uploadFile = await jimp.read(tmpDir);
+  await uploadFile.resize(250, 250);
+  await uploadFile.writeAsync(tmpDir);
+
   const fileName = `${_id}_${originalname}`;
   const uploadDir = path.join(avatarsDir, fileName);
   await fs.rename(tmpDir, uploadDir);
   const avatarURL = path.join("public", "avatars", fileName);
 
   await User.findByIdAndUpdate(_id, { avatarURL });
+
   res.status(200).json({
     avatarURL,
   });
