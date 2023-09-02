@@ -2,9 +2,14 @@ const { User } = require("../models/user");
 const { controllerWrapper, HttpError } = require("../helpers");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { patch } = require("../routes/api/auth");
 require("dotenv").config();
+const path = require("path");
+const fs = require("fs/promises");
+const gravatar = require("gravatar");
 
 const { SECRET_KEY } = process.env;
+const avatarsDir = path.join(__dirname, "../", "public", "avatars");
 
 const register = async (req, res) => {
   const { email, password } = req.body;
@@ -15,8 +20,13 @@ const register = async (req, res) => {
   }
 
   const hashPassword = await bcrypt.hash(password, 10);
+  const avatarURL = gravatar.url(email);
 
-  const newUser = await User.create({ ...req.body, password: hashPassword });
+  const newUser = await User.create({
+    ...req.body,
+    password: hashPassword,
+    avatarURL,
+  });
 
   res.status(201).json({
     user: { email: newUser.email, subscription: newUser.subscription },
@@ -75,10 +85,25 @@ const updateStatus = async (req, res) => {
   res.status(200).json({ subscription });
 };
 
+const updateAvatar = async (req, res) => {
+  const { _id } = req.user;
+  const { path: tmpDir, originalname } = req.file;
+  const fileName = `${_id}_${originalname}`;
+  const uploadDir = path.join(avatarsDir, fileName);
+  await fs.rename(tmpDir, uploadDir);
+  const avatarURL = path.join("public", "avatars", fileName);
+
+  await User.findByIdAndUpdate(_id, { avatarURL });
+  res.status(200).json({
+    avatarURL,
+  });
+};
+
 module.exports = {
   register: controllerWrapper(register),
   login: controllerWrapper(login),
   currentUser: controllerWrapper(currentUser),
   logout: controllerWrapper(logout),
   updateStatus: controllerWrapper(updateStatus),
+  updateAvatar: controllerWrapper(updateAvatar),
 };
