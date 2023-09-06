@@ -5,6 +5,7 @@ const {
   authenticate,
   validationSubscription,
   upload,
+  validationEmail,
 } = require("../../middlewares");
 const controller = require("../../controllers/controllerAuth");
 
@@ -26,7 +27,7 @@ router.patch(
   "/",
   authenticate,
   validationSubscription(schemas.SchemaSubscription),
-  controller.updateStatus
+  controller.updateSubscription
 );
 
 router.patch(
@@ -34,6 +35,14 @@ router.patch(
   authenticate,
   upload.single("avatar"),
   controller.updateAvatar
+);
+
+router.get("/verify/:verificationToken", controller.verifyEmail);
+
+router.post(
+  "/verify",
+  validationEmail(schemas.SchemaVerifyEmail),
+  controller.resendVerifyEmail
 );
 
 module.exports = router;
