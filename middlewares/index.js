@@ -4,6 +4,7 @@ const validationStatus = require("./validationStatus");
 const authenticate = require("./authenticate");
 const validationSubscription = require("./validationSubscription");
 const upload = require("./upload");
+const validationEmail = require("./validationEmail");
 
 module.exports = {
   validation,
@@ -12,4 +13,5 @@ module.exports = {
   authenticate,
   validationSubscription,
   upload,
+  validationEmail,
 };
